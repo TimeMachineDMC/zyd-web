@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法财 ZYD 模型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
+
+    <style>
+        .chat-container {
+            height: calc(100vh - 160px);
+        }
+
+        /* 2. 自定义 Markdown 容器样式，确保背景透明且字体适配 */
+        .markdown-body {
+            background-color: transparent !important;
+            font-size: 14px !important;
+            color: inherit !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+    <header class="border-b border-gray-800 p-4 bg-gray-900 sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <h1 class="text-xl font-bold text-blue-400">法财 ZYD 助手</h1>
+            <span class="text-xs text-gray-500">DeepSeek-V3.2 + RAG</span>
+        </div>
+    </header>
+
+    <main id="chat-box" class="max-w-4xl mx-auto p-4 chat-container overflow-y-auto space-y-6">
+        <div class="flex justify-start">
+            <div class="bg-gray-800 rounded-lg p-3 max-w-[80%] text-sm">
+                你好！我是你的专业法财 AI 助手。请问有什么可以帮您？
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full bg-gray-900 p-4 border-t border-gray-800">
+        <div class="max-w-4xl mx-auto flex gap-2">
+            <input id="user-input" type="text" placeholder="输入您的法律问题..."
+                class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+            <button id="send-btn"
+                class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition">发送</button>
+        </div>
+    </footer>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        const API_URL = "https://75c0f213.r39.cpolar.top/api/chat";
+
+        async function appendMessage(role, text) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            const div = document.createElement('div');
+            // 3. 为 AI 消息添加 markdown-body 类名
+            div.className = `${role === 'user' ? 'bg-blue-600' : 'bg-gray-800 markdown-body'} rounded-lg p-3 max-w-[85%] text-sm`;
+
+            if (role === 'user') {
+                div.innerText = text;
+            } else {
+                div.innerHTML = marked.parse(text); // 初始渲染
+            }
+
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return div;
+        }
+
+        async function handleSend() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            await appendMessage('user', query);
+            userInput.value = '';
+
+            const aiMsgDiv = await appendMessage('ai', '正在思考...');
+            let fullContent = "";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, stream: true })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                aiMsgDiv.innerHTML = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6).trim();
+                            if (dataStr === '[DONE]') break;
+
+                            try {
+                                const data = JSON.parse(dataStr);
+                                if (data.type === 'chunk') {
+                                    fullContent += data.content;
+                                    // 4. 使用 marked.parse 实时更新内容
+                                    aiMsgDiv.innerHTML = marked.parse(fullContent);
+                                    chatBox.scrollTop = chatBox.scrollHeight;
+                                }
+                            } catch (e) {
+                                console.log("解析错误", e);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                aiMsgDiv.innerText = "出错了: " + err.message;
+                aiMsgDiv.classList.add('text-red-400');
+            }
+        }
+
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+    </script>
+</body>
+
+</html>
