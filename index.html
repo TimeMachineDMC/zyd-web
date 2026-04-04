@@ -11,10 +11,9 @@
 
     <style>
         .chat-container {
-            height: calc(100vh - 160px);
+            height: calc(100vh - 200px);
         }
 
-        /* 2. 自定义 Markdown 容器样式，确保背景透明且字体适配 */
         .markdown-body {
             background-color: transparent !important;
             font-size: 14px !important;
@@ -29,6 +28,33 @@
             background: #4b5563;
             border-radius: 10px;
         }
+
+        /* 附件加载动画 */
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: ' .';
+            }
+
+            40% {
+                content: ' ..';
+            }
+
+            60% {
+                content: ' ...';
+            }
+
+            80%,
+            100% {
+                content: '';
+            }
+        }
     </style>
 </head>
 
@@ -37,24 +63,43 @@
     <header class="border-b border-gray-800 p-4 bg-gray-900 sticky top-0 z-10">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <h1 class="text-xl font-bold text-blue-400">法财 ZYD 助手</h1>
-            <span class="text-xs text-gray-500">DeepSeek-V3.2 + RAG</span>
+            <span class="text-xs text-gray-500">DeepSeek-V3.2 + RAG + 附件分析</span>
         </div>
     </header>
 
     <main id="chat-box" class="max-w-4xl mx-auto p-4 chat-container overflow-y-auto space-y-6">
         <div class="flex justify-start">
-            <div class="bg-gray-800 rounded-lg p-3 max-w-[80%] text-sm">
-                你好！我是你的专业法财 AI 助手。请问有什么可以帮您？
+            <div class="bg-gray-800 rounded-lg p-3 max-w-[80%] text-sm text-gray-300">
+                你好！我是你的专业法财 AI 助手。现在你可以点击下方的 📎 按钮上传 PDF 或 Word 文档让我分析了。
             </div>
         </div>
     </main>
 
     <footer class="fixed bottom-0 w-full bg-gray-900 p-4 border-t border-gray-800">
-        <div class="max-w-4xl mx-auto flex gap-2">
-            <input id="user-input" type="text" placeholder="输入您的法律问题..."
-                class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
-            <button id="send-btn"
-                class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition">发送</button>
+        <div class="max-w-4xl mx-auto">
+            <div id="attachment-preview"
+                class="hidden flex items-center gap-2 mb-3 bg-blue-900/40 border border-blue-500/50 p-2 rounded-lg animate-pulse">
+                <span class="text-blue-400 text-sm">📄</span>
+                <span id="file-name-display" class="text-xs text-blue-200 truncate flex-1">加载中...</span>
+                <button id="remove-file-btn" class="text-red-400 hover:text-red-300 font-bold px-2">✕</button>
+            </div>
+
+            <div class="flex gap-2">
+                <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt">
+
+                <button id="upload-trigger" title="上传附件"
+                    class="bg-gray-800 hover:bg-gray-700 border border-gray-700 px-4 py-2 rounded-lg transition">
+                    📎
+                </button>
+
+                <input id="user-input" type="text" placeholder="输入您的法律或财务问题..."
+                    class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+
+                <button id="send-btn"
+                    class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-medium transition shadow-lg shadow-blue-900/20">
+                    发送
+                </button>
+            </div>
         </div>
     </footer>
 
@@ -62,21 +107,75 @@
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
+        const fileInput = document.getElementById('file-input');
+        const uploadTrigger = document.getElementById('upload-trigger');
+        const attachmentPreview = document.getElementById('attachment-preview');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const removeFileBtn = document.getElementById('remove-file-btn');
 
         const API_URL = "https://75c0f213.r39.cpolar.top/api/chat";
+        const UPLOAD_URL = "https://75c0f213.r39.cpolar.top/api/upload";
+
+        let currentAttachedText = ""; // 暂存文件提取出的文本内容
+
+        // --- 附件处理逻辑 ---
+
+        uploadTrigger.onclick = () => fileInput.click();
+
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 显示加载状态
+            attachmentPreview.classList.remove('hidden');
+            fileNameDisplay.innerText = `正在解析 ${file.name}...`;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch(UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.full_content) {
+                    currentAttachedText = data.full_content;
+                    fileNameDisplay.innerText = `已挂载: ${file.name} (${currentAttachedText.length} 字)`;
+                    attachmentPreview.classList.remove('animate-pulse');
+                } else {
+                    alert("解析失败: " + (data.error || "未知错误"));
+                    resetFile();
+                }
+            } catch (err) {
+                alert("上传失败，请检查后端 /api/upload 接口是否正常。");
+                resetFile();
+            }
+        };
+
+        removeFileBtn.onclick = resetFile;
+
+        function resetFile() {
+            currentAttachedText = "";
+            fileInput.value = "";
+            attachmentPreview.classList.add('hidden');
+            fileNameDisplay.innerText = "加载中...";
+        }
+
+        // --- 对话逻辑 ---
 
         async function appendMessage(role, text) {
             const wrapper = document.createElement('div');
             wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
 
             const div = document.createElement('div');
-            // 3. 为 AI 消息添加 markdown-body 类名
             div.className = `${role === 'user' ? 'bg-blue-600' : 'bg-gray-800 markdown-body'} rounded-lg p-3 max-w-[85%] text-sm`;
 
             if (role === 'user') {
                 div.innerText = text;
             } else {
-                div.innerHTML = marked.parse(text); // 初始渲染
+                div.innerHTML = marked.parse(text);
             }
 
             wrapper.appendChild(div);
@@ -86,10 +185,17 @@
         }
 
         async function handleSend() {
-            const query = userInput.value.trim();
-            if (!query) return;
+            let rawQuery = userInput.value.trim();
+            if (!rawQuery && !currentAttachedText) return;
 
-            await appendMessage('user', query);
+            // 如果有附件，拼接 Prompt
+            let finalQuery = rawQuery;
+            if (currentAttachedText) {
+                finalQuery = `【参考附件内容】\n${currentAttachedText}\n\n【用户指令】\n${rawQuery || "请分析以上附件内容。"}`;
+            }
+
+            // 界面显示原始问题
+            await appendMessage('user', rawQuery || "分析附件资料");
             userInput.value = '';
 
             const aiMsgDiv = await appendMessage('ai', '正在思考...');
@@ -99,7 +205,7 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, stream: true })
+                    body: JSON.stringify({ query: finalQuery, stream: true })
                 });
 
                 const reader = response.body.getReader();
@@ -122,16 +228,16 @@
                                 const data = JSON.parse(dataStr);
                                 if (data.type === 'chunk') {
                                     fullContent += data.content;
-                                    // 4. 使用 marked.parse 实时更新内容
                                     aiMsgDiv.innerHTML = marked.parse(fullContent);
                                     chatBox.scrollTop = chatBox.scrollHeight;
                                 }
-                            } catch (e) {
-                                console.log("解析错误", e);
-                            }
+                            } catch (e) { }
                         }
                     }
                 }
+                // 发送成功后自动清理附件，防止下次提问误带
+                resetFile();
+
             } catch (err) {
                 aiMsgDiv.innerText = "出错了: " + err.message;
                 aiMsgDiv.classList.add('text-red-400');
