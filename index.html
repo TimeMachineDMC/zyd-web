@@ -4,128 +4,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>法财 ZYD 助手</title>
+    <title>债优盾 | ZYD 法财一体化引擎</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
 
     <style>
         :root {
-            --law-blue: #1e293b;
-            /* 黛青色 */
-            --accent-blue: #3b82f6;
+            --bg-dark: #09090b; /* Zinc-950 */
+            --accent-gold: #f59e0b; /* Amber-500 */
         }
 
         body {
-            background: radial-gradient(circle at top right, #0f172a, #020617);
+            background-color: var(--bg-dark);
+            color: #f4f4f5;
         }
 
         .chat-container {
-            height: calc(100vh - 200px);
+            height: calc(100vh - 180px);
         }
 
         .markdown-body {
             background-color: transparent !important;
-            font-size: 14.5px !important;
-            color: #e2e8f0 !important;
-            line-height: 1.7;
+            font-size: 15px !important;
+            line-height: 1.8;
+            color: #d4d4d8 !important;
         }
 
-        /* 典雅的对话气泡 */
+        /* 极致简约的气泡设计 */
         .bubble-ai {
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(24, 24, 27, 0.8); /* Zinc-900 */
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent-gold);
         }
 
         .bubble-user {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            background: #27272a; /* Zinc-800 */
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* 滚动条 */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
+        /* 隐藏 textarea 滚动条但保留功能 */
+        #user-input::-webkit-scrollbar { width: 0; }
 
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 10px;
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
 
-        /* 附件标签动画 */
         .file-tag {
-            transition: all 0.2s ease;
-            animation: fadeIn 0.3s ease-out;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--accent-gold);
+            animation: slideIn 0.2s ease-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 
-<body class="text-gray-200 font-sans antialiased">
+<body class="antialiased font-sans">
 
-    <header class="border-b border-slate-800/60 p-4 bg-slate-900/40 backdrop-blur-md sticky top-0 z-20">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
+    <header class="border-b border-zinc-800/50 p-4 bg-zinc-950/50 backdrop-blur-xl sticky top-0 z-20">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div
-                    class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white shadow-lg">
-                    ZYD</div>
-                <h1 class="text-lg font-semibold tracking-wide text-slate-100">法财专家助手</h1>
+                <div class="w-6 h-6 border-2 border-amber-500 rounded-full flex items-center justify-center">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
+                </div>
+                <h1 class="text-sm font-bold tracking-widest text-zinc-100">ZYD 债优盾 <span class="text-zinc-500 font-normal">| 法财研判引擎</span></h1>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span class="text-xs text-slate-400 font-mono">DeepSeek-V3.2 Engine</span>
+            <div class="text-[10px] text-zinc-500 font-mono flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> SYSTEM ONLINE
             </div>
         </div>
     </header>
 
-    <main id="chat-box" class="max-w-4xl mx-auto p-4 chat-container overflow-y-auto space-y-8">
+    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-8">
         <div class="flex justify-start">
-            <div class="bubble-ai rounded-2xl rounded-tl-none p-4 max-w-[85%] text-sm leading-relaxed text-slate-300">
-                <p class="font-semibold mb-1 text-blue-400">系统就绪</p>
-                尊敬的用户，我是您的专业法务与财务AI顾问。您现在可以点击下方的 📎 按钮上传 PDF 或 Word 文档让我分析。
+            <div class="bubble-ai rounded-xl p-5 max-w-[90%] text-sm shadow-2xl">
+                <p class="text-amber-500 font-bold mb-2 uppercase tracking-tighter text-xs">A.I. Consultant Initialized</p>
+                尊敬的专家，法财分析系统已就绪。请上传相关案卷或输入查询指令，我将基于本地知识库为您提供精准研判。
             </div>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full bg-slate-950/80 backdrop-blur-xl p-4 border-t border-slate-800/50">
+    <footer class="fixed bottom-0 w-full p-4">
         <div class="max-w-4xl mx-auto">
-
+            
             <div id="file-list" class="flex flex-wrap gap-2 mb-3"></div>
 
-            <div class="flex items-end gap-3">
-                <div class="flex-1 flex flex-col gap-2">
+            <div class="relative bg-zinc-900 border border-zinc-800 rounded-2xl p-2 shadow-2xl transition-all focus-within:border-zinc-700">
+                <div class="flex items-end gap-2">
+                    <button id="upload-trigger" title="上传附件"
+                        class="p-3 text-zinc-500 hover:text-amber-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    </button>
+                    
                     <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt" multiple>
-
-                    <div
-                        class="flex gap-2 bg-slate-900/80 border border-slate-700/50 rounded-xl px-4 py-1.5 focus-within:border-blue-500/50 transition-all shadow-inner">
-                        <button id="upload-trigger" title="上传附件"
-                            class="text-slate-400 hover:text-blue-400 transition-colors text-xl">
-                            📎
-                        </button>
-                        <input id="user-input" type="text" placeholder="请在此描述您的法律或财务咨询需求..."
-                            class="flex-1 bg-transparent border-none text-slate-200 placeholder-slate-500 text-sm py-2 focus:outline-none">
-                    </div>
+                    
+                    <textarea id="user-input" rows="1" 
+                        placeholder="输入指令，Shift + Enter 换行..."
+                        class="flex-1 bg-transparent border-none text-zinc-200 placeholder-zinc-600 text-sm py-3 focus:outline-none resize-none max-h-48 overflow-y-auto"></textarea>
+                    
+                    <button id="send-btn"
+                        class="bg-amber-500 hover:bg-amber-600 text-zinc-950 p-3 rounded-xl transition-all active:scale-95 disabled:opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                    </button>
                 </div>
-
-                <button id="send-btn"
-                    class="bubble-user px-6 py-3 rounded-xl font-medium text-sm text-white transition hover:brightness-110 active:scale-95 mb-0.5">
-                    提交咨询
-                </button>
             </div>
-            <p class="text-[10px] text-center text-slate-600 mt-3 tracking-widest">基于 RAG 检索增强技术 · 法律意见仅供参考</p>
+            <p class="text-[9px] text-center text-zinc-600 mt-3 uppercase tracking-[0.2em]">End-to-End Encrypted | RAG-Augmented Evidence</p>
         </div>
     </footer>
 
@@ -140,7 +127,20 @@
         const API_URL = "https://4ce7f5fb.r39.cpolar.top/api/chat";
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
-        let attachedFiles = []; // 格式: [{name: 'filename', content: 'text'}]
+        let attachedFiles = [];
+
+        // --- 交互优化：自动高度与换行逻辑 ---
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
 
         // --- 附件逻辑 ---
         uploadTrigger.onclick = () => fileInput.click();
@@ -149,7 +149,6 @@
             const files = Array.from(e.target.files);
             for (const file of files) {
                 if (attachedFiles.some(f => f.name === file.name)) continue;
-
                 const tag = createTag(file.name, true);
                 fileListContainer.appendChild(tag);
 
@@ -164,24 +163,19 @@
                         renderTags();
                     } else {
                         tag.remove();
-                        alert(`解析失败: ${file.name}`);
                     }
-                } catch (err) {
-                    tag.remove();
-                    alert("网络异常，无法连接后端接口。");
-                }
+                } catch (err) { tag.remove(); }
             }
             fileInput.value = "";
         };
 
         function createTag(name, isLoading = false) {
             const div = document.createElement('div');
-            div.className = `file-tag flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border ${isLoading ? 'bg-slate-800 border-slate-700 text-slate-500 animate-pulse' : 'bg-cyan-900/30 border-cyan-500/40 text-cyan-200'
-                }`;
-            div.innerHTML = `<span>${isLoading ? '⏳' : '📜'} ${name}</span>`;
+            div.className = `file-tag flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium`;
+            div.innerHTML = `<span>${isLoading ? '...' : 'DOC'} ${name}</span>`;
             if (!isLoading) {
                 const btn = document.createElement('button');
-                btn.className = "ml-1 text-cyan-500 hover:text-red-400 transition-colors";
+                btn.className = "ml-1 hover:text-white transition-colors";
                 btn.innerHTML = "✕";
                 btn.onclick = () => {
                     attachedFiles = attachedFiles.filter(f => f.name !== name);
@@ -200,12 +194,12 @@
         // --- 对话逻辑 ---
         async function appendMessage(role, text) {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`;
 
             const div = document.createElement('div');
             div.className = role === 'user'
-                ? "bubble-user rounded-2xl rounded-tr-none p-4 max-w-[85%] text-sm text-white"
-                : "bubble-ai rounded-2xl rounded-tl-none p-4 max-w-[85%] text-sm markdown-body";
+                ? "bubble-user rounded-2xl rounded-tr-none p-4 max-w-[85%] text-sm text-zinc-100"
+                : "bubble-ai rounded-xl p-5 max-w-[90%] text-sm markdown-body shadow-xl";
 
             if (role === 'user') {
                 div.innerText = text;
@@ -223,17 +217,17 @@
             const rawInput = userInput.value.trim();
             if (!rawInput && attachedFiles.length === 0) return;
 
-            // 合并所有附件内容
             let finalPrompt = rawInput;
             if (attachedFiles.length > 0) {
                 const context = attachedFiles.map(f => `【文件名：${f.name}】\n${f.content}`).join("\n\n");
-                finalPrompt = `参考以下附件材料：\n\n${context}\n\n我的咨询问题是：${rawInput || "请对以上材料进行法务及财务风险总结。"}`;
+                finalPrompt = `参考附件材料：\n\n${context}\n\n问题：${rawInput || "请对以上材料进行风险总结。"}`;
             }
 
-            await appendMessage('user', rawInput || `已提交 ${attachedFiles.length} 份附件供分析`);
+            await appendMessage('user', rawInput || `正在分析 ${attachedFiles.length} 份文档...`);
             userInput.value = '';
+            userInput.style.height = 'auto'; // 重置高度
 
-            const aiMsgDiv = await appendMessage('ai', '正在查阅卷宗，请稍候...');
+            const aiMsgDiv = await appendMessage('ai', 'Thinking...');
             let fullContent = "";
 
             try {
@@ -250,15 +244,12 @@
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-
                     const chunk = decoder.decode(value);
                     const lines = chunk.split('\n');
-
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const dataStr = line.slice(6).trim();
                             if (dataStr === '[DONE]') break;
-
                             try {
                                 const data = JSON.parse(dataStr);
                                 if (data.type === 'chunk') {
@@ -270,15 +261,10 @@
                         }
                     }
                 }
-                // 根据需求：可选在此处 reset 附件。为了连贯性，这里暂时保留标签以便用户追问。
             } catch (err) {
-                aiMsgDiv.innerText = "咨询中断: " + err.message;
-                aiMsgDiv.classList.add('text-red-400');
+                aiMsgDiv.innerText = "Error: " + err.message;
             }
         }
-
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
     </script>
 </body>
 
