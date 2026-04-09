@@ -29,7 +29,7 @@
             padding-bottom: 260px !important; 
         }
 
-        /* --- Markdown 极致渲染优化 --- */
+        /* Markdown 渲染优化 */
         .markdown-body {
             background-color: transparent !important;
             font-size: 15px !important;
@@ -50,7 +50,7 @@
         .markdown-body th { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); font-weight: bold; border-bottom: 2px solid var(--accent-amber); }
         .markdown-body tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
 
-        /* --- 气泡呼吸感增强 --- */
+        /* 气泡呼吸感增强 */
         .bubble-ai {
             background: var(--glass-zinc);
             border: 1px solid rgba(245, 158, 11, 0.1);
@@ -74,7 +74,7 @@
             padding: 1rem 1.25rem !important; /* 平衡用户气泡 */
         }
 
-        /* --- Thought 面板动态样式 --- */
+        /* Thought 面板动态样式 */
         .reasoning-panel {
             background: rgba(39, 39, 42, 0.4);
             border-left: 2px dashed #3f3f46;
@@ -86,7 +86,7 @@
             transition: border-color 0.3s ease;
         }
 
-        /* --- 输入框流光反馈 --- */
+        /* 输入框流光反馈 */
         .glow-generating {
             animation: borderPulse 2s infinite ease-in-out;
         }
@@ -195,7 +195,7 @@
         let isGenerating = false; // 防重复提交锁
         let chatHistory = [];
 
-        // --- 💡 快捷发送卡片支持 ---
+        // 快捷发送卡片支持
         window.fillAndSend = function(text) {
             userInput.value = text;
             userInput.style.height = 'auto';
@@ -263,7 +263,7 @@
 
             const div = document.createElement('div');
             
-            // --- 💡 Thought 面板动态收起逻辑 ---
+            // Thought 面板动态收起逻辑
             if (type === 'reasoning') {
                 div.className = "reasoning-panel max-w-[85%] group cursor-pointer hover:bg-zinc-800/60 transition-colors";
                 div.innerHTML = `
@@ -295,7 +295,7 @@
             const rawInput = userInput.value.trim();
             if (!rawInput && attachedFiles.length === 0) return;
 
-            // 💡 锁定发送键，开启流光特效
+            // 锁定发送键，开启流光特效
             isGenerating = true;
             sendBtn.style.opacity = '0.5';
             inputWrapper.classList.add('glow-generating');
