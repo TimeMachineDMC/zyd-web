@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justitia | 法财穿透研判系统</title>
+    <title>Justitia | 法财穿透研判引擎</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown-dark.css">
@@ -80,23 +80,24 @@
 
 <body class="antialiased font-sans">
 
-    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-20">
+    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="text-amber-500">
+                <div class="text-amber-500 transform hover:rotate-12 transition-transform duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 8 7-5 7 5"/><path d="M3 10h18"/><path d="M21 21H3"/><path d="M12 12H3"/><path d="M12 12h9"/></svg>
                 </div>
                 <div>
                     <h1 class="text-sm font-black tracking-[0.2em] text-white uppercase">Justitia</h1>
-                    <p class="text-[9px] text-zinc-500 tracking-widest uppercase">Law & Finance Intelligence Engine</p>
+                    <p class="text-[9px] text-zinc-600 tracking-widest uppercase mt-0.5">Law & Finance Intelligence Engine</p>
                 </div>
             </div>
-            <div class="flex gap-4 items-center">
-                <div class="hidden md:flex bg-zinc-900/50 p-1 rounded-lg border border-white/5">
-                    <button class="mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent font-bold">穿透模式</button>
-                    <button class="mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300">合规核查</button>
-                </div>
-                <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_8px_#f59e0b]"></div>
+            
+            <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+                </span>
+                <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
             </div>
         </div>
     </header>
@@ -106,7 +107,7 @@
             <div class="bubble-ai rounded-r-xl p-6 max-w-[90%] shadow-2xl">
                 <p class="text-amber-500 font-bold mb-3 tracking-tighter text-xs">JUSTITIA CORE 1.0</p>
                 <div class="text-zinc-300 text-sm leading-relaxed">
-                    欢迎使用 Justitia 系统。我已加载 BUPT 全栈法财知识库，支持判例溯源与财务报表穿透分析。
+                    尊敬的用户您好，我是 Justitia，法财分析系统已就绪。请上传相关案卷或提出问题，我将基于本地知识库为您提供精准研判。
                     <br><br>
                     <span class="text-zinc-500 italic">“正义不应仅被实现，更应以可见的方式实现。”</span>
                 </div>
