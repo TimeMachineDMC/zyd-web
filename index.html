@@ -20,15 +20,13 @@
             background-color: var(--bg-dark);
             color: #f4f4f5;
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b, transparent);
-            overflow: hidden; /* 防止最外层滚动，保证悬浮框绝对稳定 */
         }
 
-        /* 保证主视图高度完美适配，底部留出充足的悬浮空间 */
+        /* 💡 核心修复：通过大的 pb-64 确保内容永远浮在输入框上方 */
         .chat-container { 
-            height: 100vh; 
+            height: calc(100vh - 80px); 
             overflow-y: auto;
-            padding-bottom: 240px; 
-            scroll-behavior: smooth;
+            padding-bottom: 260px !important; 
         }
 
         .markdown-body {
@@ -36,14 +34,6 @@
             font-size: 15px !important;
             line-height: 1.8;
             color: #d4d4d8 !important;
-        }
-
-        .markdown-body blockquote {
-            border-left: 3px solid var(--accent-amber);
-            background: rgba(245, 158, 11, 0.05);
-            padding: 10px 20px;
-            color: #a1a1aa;
-            border-radius: 4px;
         }
 
         .markdown-body strong { color: var(--accent-amber); font-weight: 800; }
@@ -122,29 +112,26 @@
         </div>
     </main>
 
-    <footer class="fixed bottom-8 w-full bg-transparent z-40 pointer-events-none">
-        <div class="max-w-4xl mx-auto px-6 pointer-events-auto">
+    <footer class="fixed bottom-8 w-full bg-transparent z-40">
+        <div class="max-w-4xl mx-auto px-6">
             <div id="file-list" class="flex flex-wrap gap-2 mb-4"></div>
 
             <div class="relative group">
-                <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-purple-500/20 rounded-2xl blur opacity-30 transition duration-1000"></div>
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-purple-500/20 rounded-2xl blur opacity-30 group-focus-within:opacity-100 transition duration-1000"></div>
                 
-                <div class="relative bg-zinc-900/90 border border-white/10 rounded-2xl p-3 shadow-2xl backdrop-blur-xl focus-within:border-amber-500/50 transition-colors">
+                <div class="relative bg-zinc-900/90 border border-white/10 rounded-2xl p-3 shadow-2xl backdrop-blur-xl">
                     <div class="flex items-end gap-2">
-                        <button id="upload-trigger" type="button" class="p-3 text-zinc-500 hover:text-amber-500 transition-all transform hover:scale-110 cursor-pointer">
+                        <button id="upload-trigger" class="p-3 text-zinc-500 hover:text-amber-500 transition-all transform hover:scale-110">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                         </button>
                         <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt" multiple>
-                        
                         <textarea id="user-input" rows="1" placeholder="输入指令，Shift + Enter 换行" class="flex-1 bg-transparent border-none text-zinc-200 placeholder-zinc-600 text-sm py-3 focus:outline-none resize-none max-h-48 overflow-y-auto"></textarea>
-                        
-                        <button id="send-btn" type="button" class="bg-amber-500 hover:bg-amber-400 text-black p-3 rounded-xl transition-all active:scale-90 disabled:opacity-50 cursor-pointer">
+                        <button id="send-btn" class="bg-amber-500 hover:bg-amber-400 text-black p-3 rounded-xl transition-all active:scale-90 disabled:opacity-50">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
-            
             <p class="text-[10px] text-center text-zinc-600 mt-4 tracking-wide font-medium">
                 Justitia 是一位 AI 助手，其回答未必正确无误。
             </p>
@@ -163,15 +150,14 @@
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
-        let isGenerating = false; // 状态锁：防止重复发送
 
-        // 输入框自适应高度
+        // 💡 恢复最稳健的自适应高度
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
 
-        // 监听回车发送
+        // 💡 重新绑定回车键逻辑
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -179,13 +165,12 @@
             }
         });
 
-        // 完美修复：绑定鼠标点击发送事件
+        // 💡 重新绑定发送按钮逻辑
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleSend();
         });
 
-        // 附件上传逻辑
         uploadTrigger.onclick = () => fileInput.click();
 
         fileInput.onchange = async (e) => {
@@ -244,13 +229,8 @@
         }
 
         async function handleSend() {
-            if (isGenerating) return; // 拦截重复点击
-            
             const rawInput = userInput.value.trim();
             if (!rawInput && attachedFiles.length === 0) return;
-
-            isGenerating = true;
-            sendBtn.style.opacity = '0.5';
 
             let finalPrompt = rawInput;
             if (attachedFiles.length > 0) {
@@ -262,7 +242,7 @@
             userInput.value = ''; 
             userInput.style.height = 'auto';
 
-            const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析指令...', 'reasoning');
+            const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
             
             let fullContent = "";
@@ -302,12 +282,7 @@
                         }
                     }
                 }
-            } catch (err) { 
-                aiMsgDiv.innerText = "Connection Error"; 
-            } finally {
-                isGenerating = false;
-                sendBtn.style.opacity = '1';
-            }
+            } catch (err) { aiMsgDiv.innerText = "Connection Error"; }
         }
     </script>
 </body>
