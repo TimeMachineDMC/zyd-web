@@ -269,9 +269,9 @@
 
             const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
-            const sourceContainer = document.createElement('div');
-            sourceContainer.className = "flex flex-wrap gap-2 mt-2";
-            aiMsgDiv.parentNode.appendChild(sourceContainer);
+            // const sourceContainer = document.createElement('div');
+            // sourceContainer.className = "flex flex-wrap gap-2 mt-2";
+            // aiMsgDiv.parentNode.appendChild(sourceContainer);
             
             let fullReasoning = ""; let fullContent = "";
 
@@ -297,13 +297,14 @@
                             if (dataStr === '[DONE]') { reasoningDiv.style.borderLeftStyle = "solid"; reasoningDiv.style.borderLeftColor = "#10b981"; break; }
                             try {
                                 const data = JSON.parse(dataStr);
-                                if (data.type === 'meta' && data.sources) {
-                                    data.sources.forEach(s => {
-                                        const sc = document.createElement('div'); sc.className="source-card";
-                                        sc.innerHTML = `<small>引用: ${s.filename}</small>`;
-                                        sourceContainer.appendChild(sc);
-                                    });
-                                } else if (data.type === 'reasoning') {
+                                // if (data.type === 'meta' && data.sources) {
+                                //     data.sources.forEach(s => {
+                                //         const sc = document.createElement('div'); sc.className="source-card";
+                                //         sc.innerHTML = `<small>引用: ${s.filename}</small>`;
+                                //         sourceContainer.appendChild(sc);
+                                //     });
+                                // } else 
+                                if (data.type === 'reasoning') {
                                     fullReasoning += data.content;
                                     reasoningDiv.innerHTML = `<span class="not-italic text-amber-500 font-bold mr-2">⚖️ THOUGHT:</span>${fullReasoning}`;
                                 } else if (data.type === 'chunk') {
