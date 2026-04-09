@@ -22,16 +22,19 @@
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b, transparent);
         }
 
-        .chat-container { height: calc(100vh - 220px); }
+        /* 移除固定高度，改为一体化流式布局 */
+        .chat-container { 
+            height: 100vh;
+            padding-bottom: 220px; /* 为底部浮动输入框留出空间 */
+        }
 
-        /* --- Markdown 专业化定制 --- */
         .markdown-body {
             background-color: transparent !important;
             font-size: 15px !important;
             line-height: 1.8;
             color: #d4d4d8 !important;
         }
-        /* 强化引用块样式：模拟法律卷宗 */
+
         .markdown-body blockquote {
             border-left: 3px solid var(--accent-amber);
             background: rgba(245, 158, 11, 0.05);
@@ -39,13 +42,12 @@
             color: #a1a1aa;
             border-radius: 4px;
         }
-        /* 强化加粗项：突出核心风险点 */
+
         .markdown-body strong {
             color: var(--accent-amber);
             font-weight: 800;
         }
 
-        /* Justitia 专属气泡 */
         .bubble-ai {
             background: var(--glass-zinc);
             border: 1px solid rgba(245, 158, 11, 0.1);
@@ -67,7 +69,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        /* 动态推理状态流面板 */
         .reasoning-panel {
             background: rgba(39, 39, 42, 0.4);
             border-left: 2px dashed #3f3f46;
@@ -79,7 +80,6 @@
             transition: all 0.5s ease;
         }
 
-        /* 引用溯源卡片 */
         .source-card {
             background: #18181b;
             border: 1px solid #27272a;
@@ -136,7 +136,7 @@
         </div>
     </header>
 
-    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-10 pb-20">
+    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-10">
         <div class="flex justify-start">
             <div class="bubble-ai rounded-r-xl p-6 max-w-[90%] shadow-2xl">
                 <p class="text-amber-500 font-bold mb-3 tracking-tighter text-xs">JUSTITIA CORE 1.0</p>
@@ -149,8 +149,8 @@
         </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full p-6 bg-gradient-to-t from-black via-black/80 to-transparent">
-        <div class="max-w-4xl mx-auto">
+    <footer class="fixed bottom-8 w-full bg-transparent">
+        <div class="max-w-4xl mx-auto px-6">
             <div id="file-list" class="flex flex-wrap gap-2 mb-4"></div>
 
             <div class="relative group">
@@ -169,6 +169,9 @@
                     </div>
                 </div>
             </div>
+            <p class="text-[10px] text-center text-zinc-600 mt-4 tracking-wide font-medium">
+                Justitia 是一位 AI 助手，其回答未必正确无误。
+            </p>
         </div>
     </footer>
 
@@ -186,7 +189,6 @@
         let attachedFiles = [];
         let useThinkingMode = false;
 
-        // 模式切换
         const chatBtn = document.getElementById('mode-chat');
         const reasonerBtn = document.getElementById('mode-reasoner');
         chatBtn.onclick = () => { useThinkingMode = false; chatBtn.classList.add('active'); reasonerBtn.classList.remove('active'); };
@@ -265,7 +267,6 @@
             await appendMessage('user', rawInput || `已提交附件供分析`);
             userInput.value = ''; userInput.style.height = 'auto';
 
-            // 动态推理状态流初始化
             const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
             const sourceContainer = document.createElement('div');
