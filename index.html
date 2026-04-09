@@ -319,7 +319,11 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: finalPrompt, stream: true })
+                    body: JSON.stringify({ 
+                        query: finalPrompt, 
+                        history: chatHistory,
+                        stream: true 
+                    })
                 });
 
                 const reader = response.body.getReader();
@@ -335,6 +339,18 @@
                         if (line.startsWith('data: ')) {
                             const dataStr = line.slice(6).trim();
                             if (dataStr === '[DONE]') { 
+                                const userText = String(rawInput).trim();
+                                const aiText = String(fullContent).trim();
+                                
+                                if (userText && aiText) {
+                                    chatHistory.push({ "role": "user", "content": userText });
+                                    chatHistory.push({ "role": "assistant", "content": aiText });
+                                }
+
+                                if (chatHistory.length > 10) {
+                                    chatHistory = chatHistory.slice(-10);
+                                }
+                                
                                 reasoningDiv.style.borderLeftStyle = "solid"; 
                                 reasoningDiv.style.borderLeftColor = "#10b981"; 
                                 const contentNode = reasoningDiv.querySelector('.thought-content');
