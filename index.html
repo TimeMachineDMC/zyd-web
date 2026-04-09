@@ -142,7 +142,7 @@
                             <h4 class="text-amber-500 text-xs font-bold mb-1">⚖️ 法理案卷溯源</h4>
                             <p class="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors">检索“股东出资加速到期”判例标准</p>
                         </div>
-                        <div onclick="fillAndSend('分析股票代码 Scode 为 '000001' 的公司的财务报表，提取其核心营收和负债数据，判断是否存在异常流出风险。')" class="p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg hover:border-amber-500/40 hover:bg-amber-500/5 cursor-pointer transition-all group">
+                        <div onclick="fillAndSend('分析股票代码 Scode 为 000001 的公司的财务报表，提取其核心营收和负债数据，判断是否存在异常流出风险。')" class="p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg hover:border-amber-500/40 hover:bg-amber-500/5 cursor-pointer transition-all group">
                             <h4 class="text-amber-500 text-xs font-bold mb-1">📊 财务数据穿透</h4>
                             <p class="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors">核查某企业资产负债表与异常流出</p>
                         </div>
@@ -193,6 +193,7 @@
 
         let attachedFiles = [];
         let isGenerating = false; // 防重复提交锁
+        let chatHistory = [];
 
         // --- 💡 快捷发送卡片支持 ---
         window.fillAndSend = function(text) {
