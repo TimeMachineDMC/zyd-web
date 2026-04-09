@@ -86,18 +86,6 @@
             transition: border-color 0.3s ease;
         }
 
-        /* --- 极客风模式切换器样式 --- */
-        .mode-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .mode-btn.active {
-            color: var(--accent-amber);
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
-            font-weight: bold;
-        }
-
         /* --- 输入框流光反馈 --- */
         .glow-generating {
             animation: borderPulse 2s infinite ease-in-out;
@@ -127,19 +115,12 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex bg-zinc-900/80 p-1 rounded-lg border border-white/5 shadow-inner">
-                    <button id="mode-spark" class="mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent text-amber-500 bg-amber-500/10 font-bold">Spark 极速</button>
-                    <button id="mode-prism" class="mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300">Prism 思考</button>
-                </div>
-
-                <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
-                    </span>
-                    <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
-                </div>
+            <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+                </span>
+                <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
             </div>
         </div>
     </header>
@@ -163,7 +144,7 @@
                         </div>
                         <div onclick="fillAndSend('分析公司的财务报表，提取其核心营收和负债数据，判断是否存在异常流出风险。')" class="p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg hover:border-amber-500/40 hover:bg-amber-500/5 cursor-pointer transition-all group">
                             <h4 class="text-amber-500 text-xs font-bold mb-1">📊 财务数据穿透</h4>
-                            <p class="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors">核查各大企业资产负债表与异常流出</p>
+                            <p class="text-[11px] text-zinc-400 group-hover:text-zinc-300 transition-colors">核查企业资产负债表与异常流出</p>
                         </div>
                     </div>
                 </div>
@@ -207,28 +188,11 @@
         const fileListContainer = document.getElementById('file-list');
         const inputWrapper = document.getElementById('input-wrapper');
 
-        const API_URL = "http://127.0.0.1:8000/api/chat";
-        const UPLOAD_URL = "http://127.0.0.1:8000/api/upload";
+        const API_URL = "https://4ce7f5fb.r39.cpolar.top/api/chat";
+        const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
         let isGenerating = false; // 防重复提交锁
-        let currentMode = 'spark'; // 💡 默认模式：Spark 极速
-
-        // --- 💡 模式切换逻辑 ---
-        const btnSpark = document.getElementById('mode-spark');
-        const btnPrism = document.getElementById('mode-prism');
-
-        btnSpark.addEventListener('click', () => {
-            currentMode = 'spark';
-            btnSpark.className = "mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent text-amber-500 bg-amber-500/10 font-bold";
-            btnPrism.className = "mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300";
-        });
-
-        btnPrism.addEventListener('click', () => {
-            currentMode = 'prism';
-            btnPrism.className = "mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent text-amber-500 bg-amber-500/10 font-bold";
-            btnSpark.className = "mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300";
-        });
 
         // --- 💡 快捷发送卡片支持 ---
         window.fillAndSend = function(text) {
@@ -345,12 +309,7 @@
             userInput.value = ''; 
             userInput.style.height = 'auto';
 
-            // 💡 只有 Prism 模式才弹出思考面板
-            let reasoningDiv = null;
-            if (currentMode === 'prism') {
-                reasoningDiv = await appendMessage('ai', 'Justitia 正在解构法理逻辑...', 'reasoning');
-            }
-            
+            const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
             
             let fullReasoning = "";
@@ -360,11 +319,7 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        query: finalPrompt, 
-                        stream: true,
-                        mode: currentMode // 💡 将模式参数传给后端
-                    })
+                    body: JSON.stringify({ query: finalPrompt, stream: true })
                 });
 
                 const reader = response.body.getReader();
@@ -381,19 +336,16 @@
                             const dataStr = line.slice(6).trim();
                             if (dataStr === '[DONE]') { 
                                 // 💡 结束时边线变绿，并动态收起推理面板
-                                if (reasoningDiv) {
-                                    reasoningDiv.style.borderLeftStyle = "solid"; 
-                                    reasoningDiv.style.borderLeftColor = "#10b981"; 
-                                    const contentNode = reasoningDiv.querySelector('.thought-content');
-                                    if(contentNode) contentNode.style.display = 'none';
-                                }
+                                reasoningDiv.style.borderLeftStyle = "solid"; 
+                                reasoningDiv.style.borderLeftColor = "#10b981"; 
+                                const contentNode = reasoningDiv.querySelector('.thought-content');
+                                if(contentNode) contentNode.style.display = 'none';
                                 break; 
                             }
                             try {
                                 const data = JSON.parse(dataStr);
-                                
-                                // 💡 拦截后端的推理内容，注入到面板
-                                if (data.type === 'reasoning' && reasoningDiv) {
+                                if (data.type === 'reasoning') {
+                                    // 精准更新推理面板内容，避免覆盖头部结构
                                     fullReasoning += data.content;
                                     const contentNode = reasoningDiv.querySelector('.thought-content');
                                     if(contentNode) contentNode.innerText = fullReasoning;
