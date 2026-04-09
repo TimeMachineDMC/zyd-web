@@ -24,11 +24,25 @@
 
         .chat-container { height: calc(100vh - 220px); }
 
+        /* --- Markdown 专业化定制 --- */
         .markdown-body {
             background-color: transparent !important;
             font-size: 15px !important;
             line-height: 1.8;
             color: #d4d4d8 !important;
+        }
+        /* 强化引用块样式：模拟法律卷宗 */
+        .markdown-body blockquote {
+            border-left: 3px solid var(--accent-amber);
+            background: rgba(245, 158, 11, 0.05);
+            padding: 10px 20px;
+            color: #a1a1aa;
+            border-radius: 4px;
+        }
+        /* 强化加粗项：突出核心风险点 */
+        .markdown-body strong {
+            color: var(--accent-amber);
+            font-weight: 800;
         }
 
         /* Justitia 专属气泡 */
@@ -53,19 +67,33 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        /* 推理链样式 */
+        /* 动态推理状态流面板 */
         .reasoning-panel {
-            background: rgba(39, 39, 42, 0.5);
-            border-left: 2px dashed #52525b;
-            animation: fadeIn 0.5s ease;
+            background: rgba(39, 39, 42, 0.4);
+            border-left: 2px dashed #3f3f46;
+            margin: 12px 0;
+            padding: 12px;
+            font-size: 13px;
+            color: #71717a;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.5s ease;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* 极简切换器 */
-        .mode-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* 引用溯源卡片 */
+        .source-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #a1a1aa;
         }
+
+        .mode-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .mode-btn.active {
             color: var(--accent-amber);
             background: rgba(245, 158, 11, 0.1);
@@ -92,24 +120,30 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
-                </span>
-                <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex bg-zinc-900/50 p-1 rounded-lg border border-white/5">
+                    <button id="mode-chat" class="mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent font-bold">极速模式</button>
+                    <button id="mode-reasoner" class="mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300">思考模式</button>
+                </div>
+                <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+                    </span>
+                    <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-10">
+    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-10 pb-20">
         <div class="flex justify-start">
             <div class="bubble-ai rounded-r-xl p-6 max-w-[90%] shadow-2xl">
                 <p class="text-amber-500 font-bold mb-3 tracking-tighter text-xs">JUSTITIA CORE 1.0</p>
                 <div class="text-zinc-300 text-sm leading-relaxed">
-                    尊敬的用户您好，我是 Justitia，法财分析系统已就绪。请上传相关案卷或提出问题，我将基于本地知识库为您提供精准研判。
+                    尊敬的用户，Justitia 研判系统已就绪。
                     <br><br>
-                    <span class="text-zinc-500 italic">“正义不应仅被实现，更应以可见的方式实现。”</span>
+                    <span class="text-zinc-500 italic">“穿透财务迷雾，捍卫债权正义。”</span>
                 </div>
             </div>
         </div>
@@ -127,22 +161,13 @@
                         <button id="upload-trigger" class="p-3 text-zinc-500 hover:text-amber-500 transition-all transform hover:scale-110">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
                         </button>
-                        
                         <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt" multiple>
-                        
-                        <textarea id="user-input" rows="1" 
-                            placeholder="输入指令，Shift + Enter 换行"
-                            class="flex-1 bg-transparent border-none text-zinc-200 placeholder-zinc-600 text-sm py-3 focus:outline-none resize-none max-h-48 overflow-y-auto"></textarea>
-                        
+                        <textarea id="user-input" rows="1" placeholder="输入指令，Shift + Enter 换行" class="flex-1 bg-transparent border-none text-zinc-200 placeholder-zinc-600 text-sm py-3 focus:outline-none resize-none max-h-48 overflow-y-auto"></textarea>
                         <button id="send-btn" class="bg-amber-500 hover:bg-amber-400 text-black p-3 rounded-xl transition-all active:scale-90 disabled:opacity-50">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                         </button>
                     </div>
                 </div>
-            </div>
-            <div class="flex justify-between px-2 mt-4">
-                <p class="text-[9px] text-zinc-600 uppercase tracking-widest">Evidence-based Reasoning</p>
-                <p class="text-[9px] text-zinc-600 uppercase tracking-widest">Penetration Audit Mode</p>
             </div>
         </div>
     </footer>
@@ -159,19 +184,16 @@
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
+        let useThinkingMode = false;
 
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+        // 模式切换
+        const chatBtn = document.getElementById('mode-chat');
+        const reasonerBtn = document.getElementById('mode-reasoner');
+        chatBtn.onclick = () => { useThinkingMode = false; chatBtn.classList.add('active'); reasonerBtn.classList.remove('active'); };
+        reasonerBtn.onclick = () => { useThinkingMode = true; reasonerBtn.classList.add('active'); chatBtn.classList.remove('active'); };
 
-        userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
-
+        userInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
+        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
         uploadTrigger.onclick = () => fileInput.click();
 
         fileInput.onchange = async (e) => {
@@ -185,10 +207,8 @@
                 try {
                     const response = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
                     const data = await response.json();
-                    if (data.full_content) {
-                        attachedFiles.push({ name: file.name, content: data.full_content });
-                        renderTags();
-                    } else { tag.remove(); }
+                    if (data.full_content) { attachedFiles.push({ name: file.name, content: data.full_content }); renderTags(); }
+                    else tag.remove();
                 } catch (err) { tag.remove(); }
             }
             fileInput.value = "";
@@ -196,39 +216,32 @@
 
         function createTag(name, isLoading = false) {
             const div = document.createElement('div');
-            div.className = `px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-tighter transition-all ${isLoading ? 'bg-zinc-800 text-zinc-600 animate-pulse' : 'bg-amber-500/10 border border-amber-500/20 text-amber-500'}`;
+            div.className = `px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-tighter ${isLoading ? 'bg-zinc-800 text-zinc-600 animate-pulse' : 'bg-amber-500/10 border border-amber-500/20 text-amber-500'}`;
             div.innerHTML = isLoading ? `PENDING: ${name}` : `ATTACHED: ${name}`;
             if (!isLoading) {
                 const btn = document.createElement('button');
-                btn.className = "ml-2 hover:text-white";
-                btn.innerHTML = "×";
-                btn.onclick = () => {
-                    attachedFiles = attachedFiles.filter(f => f.name !== name);
-                    renderTags();
-                };
+                btn.className = "ml-2 hover:text-white"; btn.innerHTML = "×";
+                btn.onclick = () => { attachedFiles = attachedFiles.filter(f => f.name !== name); renderTags(); };
                 div.appendChild(btn);
             }
             return div;
         }
 
-        function renderTags() {
-            fileListContainer.innerHTML = "";
-            attachedFiles.forEach(f => fileListContainer.appendChild(createTag(f.name)));
-        }
+        function renderTags() { fileListContainer.innerHTML = ""; attachedFiles.forEach(f => fileListContainer.appendChild(createTag(f.name))); }
 
-        async function appendMessage(role, text, isReasoning = false) {
+        async function appendMessage(role, text, type = 'content') {
             const wrapper = document.createElement('div');
             wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`;
 
             const div = document.createElement('div');
-            if (isReasoning) {
-                div.className = "reasoning-panel ml-4 my-2 p-3 text-xs text-zinc-500 italic max-w-[80%]";
-                div.innerHTML = `<span class="not-italic mr-2">⚖️ Justitia's Thought:</span>${text}`;
+            if (type === 'reasoning') {
+                div.className = "reasoning-panel italic max-w-[85%]";
+                div.innerHTML = `<span class="not-italic text-amber-500 font-bold mr-2">⚖️ THOUGHT:</span>${text}`;
+            } else if (type === 'source') {
+                div.className = "source-card";
+                div.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span>${text}</span>`;
             } else {
-                div.className = role === 'user'
-                    ? "bubble-user rounded-2xl rounded-tr-none p-4 max-w-[85%] text-sm text-zinc-100 shadow-2xl"
-                    : "bubble-ai rounded-r-xl p-6 max-w-[90%] text-sm markdown-body shadow-2xl";
-                
+                div.className = role === 'user' ? "bubble-user rounded-2xl rounded-tr-none p-4 max-w-[85%] text-sm text-zinc-100" : "bubble-ai rounded-r-xl p-6 max-w-[90%] text-sm markdown-body";
                 if (role === 'user') div.innerText = text;
                 else div.innerHTML = marked.parse(text);
             }
@@ -246,24 +259,26 @@
             let finalPrompt = rawInput;
             if (attachedFiles.length > 0) {
                 const context = attachedFiles.map(f => `【${f.name}】\n${f.content}`).join("\n\n");
-                finalPrompt = `[Context]\n${context}\n\n[Task]\n${rawInput || "Summarize legal/financial risks."}`;
+                finalPrompt = `[Context]\n${context}\n\n[Task]\n${rawInput || "法律财务风险评估"}`;
             }
 
-            await appendMessage('user', rawInput || `Analysis request for ${attachedFiles.length} files.`);
-            userInput.value = '';
-            userInput.style.height = 'auto';
+            await appendMessage('user', rawInput || `已提交附件供分析`);
+            userInput.value = ''; userInput.style.height = 'auto';
 
-            // 模拟“推理链”效果
-            const reasoningDiv = await appendMessage('ai', '检索本地判例库并穿透财务勾稽关系...', true);
-            
+            // 动态推理状态流初始化
+            const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
-            let fullContent = "";
+            const sourceContainer = document.createElement('div');
+            sourceContainer.className = "flex flex-wrap gap-2 mt-2";
+            aiMsgDiv.parentNode.appendChild(sourceContainer);
+            
+            let fullReasoning = ""; let fullContent = "";
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: finalPrompt, stream: true })
+                    body: JSON.stringify({ query: finalPrompt, stream: true, use_thinking: useThinkingMode })
                 });
 
                 const reader = response.body.getReader();
@@ -278,24 +293,28 @@
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const dataStr = line.slice(6).trim();
-                            if (dataStr === '[DONE]') {
-                                reasoningDiv.style.color = "#10b981"; // 推理完成变绿
-                                break;
-                            }
+                            if (dataStr === '[DONE]') { reasoningDiv.style.borderLeftStyle = "solid"; reasoningDiv.style.borderLeftColor = "#10b981"; break; }
                             try {
                                 const data = JSON.parse(dataStr);
-                                if (data.type === 'chunk') {
+                                if (data.type === 'meta' && data.sources) {
+                                    data.sources.forEach(s => {
+                                        const sc = document.createElement('div'); sc.className="source-card";
+                                        sc.innerHTML = `<small>引用: ${s.filename}</small>`;
+                                        sourceContainer.appendChild(sc);
+                                    });
+                                } else if (data.type === 'reasoning') {
+                                    fullReasoning += data.content;
+                                    reasoningDiv.innerHTML = `<span class="not-italic text-amber-500 font-bold mr-2">⚖️ THOUGHT:</span>${fullReasoning}`;
+                                } else if (data.type === 'chunk') {
                                     fullContent += data.content;
                                     aiMsgDiv.innerHTML = marked.parse(fullContent);
-                                    chatBox.scrollTop = chatBox.scrollHeight;
                                 }
-                            } catch (e) { }
+                                chatBox.scrollTop = chatBox.scrollHeight;
+                            } catch (e) {}
                         }
                     }
                 }
-            } catch (err) {
-                aiMsgDiv.innerText = "Fatal Error: " + err.message;
-            }
+            } catch (err) { aiMsgDiv.innerText = "Connection Error"; }
         }
     </script>
 </body>
