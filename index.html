@@ -20,11 +20,14 @@
             background-color: var(--bg-dark);
             color: #f4f4f5;
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b, transparent);
+            overflow: hidden; /* 防止全身滚动，由 chat-box 接管 */
         }
 
+        /* 主对话区域：撑满屏幕，内部滚动 */
         .chat-container { 
-            height: 100vh;
-            padding-bottom: 240px; 
+            height: calc(100vh - 64px); /* 减去 header 高度 */
+            overflow-y: auto;
+            scroll-behavior: smooth;
         }
 
         .markdown-body {
@@ -86,7 +89,7 @@
 
 <body class="antialiased font-sans">
 
-    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30">
+    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30 h-16">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="text-amber-500">
@@ -108,20 +111,21 @@
         </div>
     </header>
 
-    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container overflow-y-auto space-y-10">
+    <main id="chat-box" class="max-w-4xl mx-auto p-6 chat-container space-y-10">
         <div class="flex justify-start">
             <div class="bubble-ai rounded-r-xl p-6 max-w-[90%] shadow-2xl">
                 <p class="text-amber-500 font-bold mb-3 tracking-tighter text-xs">JUSTITIA CORE 1.0</p>
                 <div class="text-zinc-300 text-sm leading-relaxed">
                     尊敬的用户，Justitia 研判系统已就绪。
                     <br><br>
-                    <span class="text-zinc-500 italic">“我穿越森林灯红酒绿。”</span>
+                    <span class="text-zinc-500 italic">“穿透财务迷雾，捍卫债权正义。”</span>
                 </div>
             </div>
         </div>
+        <div id="scroll-spacer" style="height: 180px;"></div>
     </main>
 
-    <footer class="fixed bottom-8 w-full bg-transparent">
+    <footer id="main-footer" class="fixed bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent pb-6">
         <div class="max-w-4xl mx-auto px-6">
             <div id="file-list" class="flex flex-wrap gap-2 mb-4"></div>
 
@@ -154,18 +158,30 @@
         const fileInput = document.getElementById('file-input');
         const uploadTrigger = document.getElementById('upload-trigger');
         const fileListContainer = document.getElementById('file-list');
+        const scrollSpacer = document.getElementById('scroll-spacer');
+        const mainFooter = document.getElementById('main-footer');
 
         const API_URL = "https://4ce7f5fb.r39.cpolar.top/api/chat";
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
 
+        // 💡 核心优化：动态调整占位高度
+        function updateSpacerHeight() {
+            const footerHeight = mainFooter.offsetHeight;
+            scrollSpacer.style.height = (footerHeight + 20) + 'px';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // 初始化高度
+        updateSpacerHeight();
+
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
+            updateSpacerHeight(); // 输入框变高时，占位也变高
         });
 
-        // 监听回车键发送
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -173,7 +189,6 @@
             }
         });
 
-        // 绑定发送按钮点击事件
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleSend();
@@ -194,7 +209,8 @@
                     const data = await response.json();
                     if (data.full_content) { 
                         attachedFiles.push({ name: file.name, content: data.full_content }); 
-                        renderTags(); 
+                        renderTags();
+                        updateSpacerHeight();
                     } else tag.remove();
                 } catch (err) { tag.remove(); }
             }
@@ -208,7 +224,11 @@
             if (!isLoading) {
                 const btn = document.createElement('button');
                 btn.className = "ml-2 hover:text-white"; btn.innerHTML = "×";
-                btn.onclick = () => { attachedFiles = attachedFiles.filter(f => f.name !== name); renderTags(); };
+                btn.onclick = () => {
+                    attachedFiles = attachedFiles.filter(f => f.name !== name);
+                    renderTags();
+                    updateSpacerHeight();
+                };
                 div.appendChild(btn);
             }
             return div;
@@ -230,8 +250,8 @@
                 else div.innerHTML = marked.parse(text);
             }
 
-            wrapper.appendChild(div);
-            chatBox.appendChild(wrapper);
+            // 在垫片之前插入消息
+            chatBox.insertBefore(wrapper, scrollSpacer);
             chatBox.scrollTop = chatBox.scrollHeight;
             return div;
         }
@@ -249,6 +269,7 @@
             await appendMessage('user', rawInput || `已提交附件供分析`);
             userInput.value = ''; 
             userInput.style.height = 'auto';
+            updateSpacerHeight();
 
             const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
