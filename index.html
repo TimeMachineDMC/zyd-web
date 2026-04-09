@@ -20,14 +20,13 @@
             background-color: var(--bg-dark);
             color: #f4f4f5;
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b, transparent);
-            overflow: hidden; /* 防止全身滚动，由 chat-box 接管 */
         }
 
-        /* 主对话区域：撑满屏幕，内部滚动 */
+        /* 💡 核心修复：通过大的 pb-64 确保内容永远浮在输入框上方 */
         .chat-container { 
-            height: calc(100vh - 64px); /* 减去 header 高度 */
+            height: calc(100vh - 80px); 
             overflow-y: auto;
-            scroll-behavior: smooth;
+            padding-bottom: 260px !important; 
         }
 
         .markdown-body {
@@ -37,18 +36,7 @@
             color: #d4d4d8 !important;
         }
 
-        .markdown-body blockquote {
-            border-left: 3px solid var(--accent-amber);
-            background: rgba(245, 158, 11, 0.05);
-            padding: 10px 20px;
-            color: #a1a1aa;
-            border-radius: 4px;
-        }
-
-        .markdown-body strong {
-            color: var(--accent-amber);
-            font-weight: 800;
-        }
+        .markdown-body strong { color: var(--accent-amber); font-weight: 800; }
 
         .bubble-ai {
             background: var(--glass-zinc);
@@ -89,7 +77,7 @@
 
 <body class="antialiased font-sans">
 
-    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30 h-16">
+    <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="text-amber-500">
@@ -118,14 +106,13 @@
                 <div class="text-zinc-300 text-sm leading-relaxed">
                     尊敬的用户，Justitia 研判系统已就绪。
                     <br><br>
-                    <span class="text-zinc-500 italic">“穿透财务迷雾，捍卫债权正义。”</span>
+                    <span class="text-zinc-500 italic">“我穿越森林灯红酒绿。”</span>
                 </div>
             </div>
         </div>
-        <div id="scroll-spacer" style="height: 180px;"></div>
     </main>
 
-    <footer id="main-footer" class="fixed bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent pb-6">
+    <footer class="fixed bottom-8 w-full bg-transparent z-40">
         <div class="max-w-4xl mx-auto px-6">
             <div id="file-list" class="flex flex-wrap gap-2 mb-4"></div>
 
@@ -158,30 +145,19 @@
         const fileInput = document.getElementById('file-input');
         const uploadTrigger = document.getElementById('upload-trigger');
         const fileListContainer = document.getElementById('file-list');
-        const scrollSpacer = document.getElementById('scroll-spacer');
-        const mainFooter = document.getElementById('main-footer');
 
         const API_URL = "https://4ce7f5fb.r39.cpolar.top/api/chat";
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
 
-        // 💡 核心优化：动态调整占位高度
-        function updateSpacerHeight() {
-            const footerHeight = mainFooter.offsetHeight;
-            scrollSpacer.style.height = (footerHeight + 20) + 'px';
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // 初始化高度
-        updateSpacerHeight();
-
+        // 💡 恢复最稳健的自适应高度
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
-            updateSpacerHeight(); // 输入框变高时，占位也变高
         });
 
+        // 💡 重新绑定回车键逻辑
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -189,6 +165,7 @@
             }
         });
 
+        // 💡 重新绑定发送按钮逻辑
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleSend();
@@ -209,8 +186,7 @@
                     const data = await response.json();
                     if (data.full_content) { 
                         attachedFiles.push({ name: file.name, content: data.full_content }); 
-                        renderTags();
-                        updateSpacerHeight();
+                        renderTags(); 
                     } else tag.remove();
                 } catch (err) { tag.remove(); }
             }
@@ -224,11 +200,7 @@
             if (!isLoading) {
                 const btn = document.createElement('button');
                 btn.className = "ml-2 hover:text-white"; btn.innerHTML = "×";
-                btn.onclick = () => {
-                    attachedFiles = attachedFiles.filter(f => f.name !== name);
-                    renderTags();
-                    updateSpacerHeight();
-                };
+                btn.onclick = () => { attachedFiles = attachedFiles.filter(f => f.name !== name); renderTags(); };
                 div.appendChild(btn);
             }
             return div;
@@ -238,7 +210,7 @@
 
         async function appendMessage(role, text, type = 'content') {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`;
+            wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300 w-full`;
 
             const div = document.createElement('div');
             if (type === 'reasoning') {
@@ -250,8 +222,8 @@
                 else div.innerHTML = marked.parse(text);
             }
 
-            // 在垫片之前插入消息
-            chatBox.insertBefore(wrapper, scrollSpacer);
+            wrapper.appendChild(div);
+            chatBox.appendChild(wrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
             return div;
         }
@@ -269,7 +241,6 @@
             await appendMessage('user', rawInput || `已提交附件供分析`);
             userInput.value = ''; 
             userInput.style.height = 'auto';
-            updateSpacerHeight();
 
             const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
