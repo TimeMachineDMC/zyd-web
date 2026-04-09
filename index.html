@@ -22,10 +22,9 @@
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b, transparent);
         }
 
-        /* 移除固定高度，改为一体化流式布局 */
         .chat-container { 
             height: 100vh;
-            padding-bottom: 220px; /* 为底部浮动输入框留出空间 */
+            padding-bottom: 240px; 
         }
 
         .markdown-body {
@@ -77,27 +76,6 @@
             font-size: 13px;
             color: #71717a;
             border-radius: 0 8px 8px 0;
-            transition: all 0.5s ease;
-        }
-
-        .source-card {
-            background: #18181b;
-            border: 1px solid #27272a;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #a1a1aa;
-        }
-
-        .mode-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .mode-btn.active {
-            color: var(--accent-amber);
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
         }
 
         #user-input::-webkit-scrollbar { width: 0; }
@@ -111,7 +89,7 @@
     <header class="border-b border-white/5 p-4 bg-black/20 backdrop-blur-xl sticky top-0 z-30">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="text-amber-500 transform hover:rotate-12 transition-transform duration-300">
+                <div class="text-amber-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="m5 8 7-5 7 5"/><path d="M3 10h18"/><path d="M21 21H3"/><path d="M12 12H3"/><path d="M12 12h9"/></svg>
                 </div>
                 <div>
@@ -120,18 +98,12 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex bg-zinc-900/50 p-1 rounded-lg border border-white/5">
-                    <button id="mode-chat" class="mode-btn active px-3 py-1 text-[10px] rounded-md border border-transparent font-bold">极速模式</button>
-                    <button id="mode-reasoner" class="mode-btn px-3 py-1 text-[10px] rounded-md border border-transparent text-zinc-500 hover:text-zinc-300">思考模式</button>
-                </div>
-                <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
-                    </span>
-                    <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
-                </div>
+            <div class="flex items-center gap-2.5 bg-zinc-900/60 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 shadow-[0_0_8px_#f59e0b]"></span>
+                </span>
+                <span class="text-[10px] text-amber-500/90 font-mono font-bold tracking-widest uppercase">System Online</span>
             </div>
         </div>
     </header>
@@ -143,7 +115,7 @@
                 <div class="text-zinc-300 text-sm leading-relaxed">
                     尊敬的用户，Justitia 研判系统已就绪。
                     <br><br>
-                    <span class="text-zinc-500 italic">“穿透财务迷雾，捍卫债权正义。”</span>
+                    <span class="text-zinc-500 italic">“我穿越森林灯红酒绿。”</span>
                 </div>
             </div>
         </div>
@@ -187,15 +159,26 @@
         const UPLOAD_URL = "https://4ce7f5fb.r39.cpolar.top/api/upload";
 
         let attachedFiles = [];
-        let useThinkingMode = false;
 
-        const chatBtn = document.getElementById('mode-chat');
-        const reasonerBtn = document.getElementById('mode-reasoner');
-        chatBtn.onclick = () => { useThinkingMode = false; chatBtn.classList.add('active'); reasonerBtn.classList.remove('active'); };
-        reasonerBtn.onclick = () => { useThinkingMode = true; reasonerBtn.classList.add('active'); chatBtn.classList.remove('active'); };
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
 
-        userInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
-        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+        // 监听回车键发送
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        });
+
+        // 绑定发送按钮点击事件
+        sendBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleSend();
+        });
+
         uploadTrigger.onclick = () => fileInput.click();
 
         fileInput.onchange = async (e) => {
@@ -209,8 +192,10 @@
                 try {
                     const response = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
                     const data = await response.json();
-                    if (data.full_content) { attachedFiles.push({ name: file.name, content: data.full_content }); renderTags(); }
-                    else tag.remove();
+                    if (data.full_content) { 
+                        attachedFiles.push({ name: file.name, content: data.full_content }); 
+                        renderTags(); 
+                    } else tag.remove();
                 } catch (err) { tag.remove(); }
             }
             fileInput.value = "";
@@ -239,9 +224,6 @@
             if (type === 'reasoning') {
                 div.className = "reasoning-panel italic max-w-[85%]";
                 div.innerHTML = `<span class="not-italic text-amber-500 font-bold mr-2">⚖️ THOUGHT:</span>${text}`;
-            } else if (type === 'source') {
-                div.className = "source-card";
-                div.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span>${text}</span>`;
             } else {
                 div.className = role === 'user' ? "bubble-user rounded-2xl rounded-tr-none p-4 max-w-[85%] text-sm text-zinc-100" : "bubble-ai rounded-r-xl p-6 max-w-[90%] text-sm markdown-body";
                 if (role === 'user') div.innerText = text;
@@ -265,21 +247,19 @@
             }
 
             await appendMessage('user', rawInput || `已提交附件供分析`);
-            userInput.value = ''; userInput.style.height = 'auto';
+            userInput.value = ''; 
+            userInput.style.height = 'auto';
 
             const reasoningDiv = await appendMessage('ai', 'Justitia 正在解析逻辑链...', 'reasoning');
             const aiMsgDiv = await appendMessage('ai', '...');
-            // const sourceContainer = document.createElement('div');
-            // sourceContainer.className = "flex flex-wrap gap-2 mt-2";
-            // aiMsgDiv.parentNode.appendChild(sourceContainer);
             
-            let fullReasoning = ""; let fullContent = "";
+            let fullContent = "";
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: finalPrompt, stream: true, use_thinking: useThinkingMode })
+                    body: JSON.stringify({ query: finalPrompt, stream: true })
                 });
 
                 const reader = response.body.getReader();
@@ -294,20 +274,14 @@
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
                             const dataStr = line.slice(6).trim();
-                            if (dataStr === '[DONE]') { reasoningDiv.style.borderLeftStyle = "solid"; reasoningDiv.style.borderLeftColor = "#10b981"; break; }
+                            if (dataStr === '[DONE]') { 
+                                reasoningDiv.style.borderLeftStyle = "solid"; 
+                                reasoningDiv.style.borderLeftColor = "#10b981"; 
+                                break; 
+                            }
                             try {
                                 const data = JSON.parse(dataStr);
-                                // if (data.type === 'meta' && data.sources) {
-                                //     data.sources.forEach(s => {
-                                //         const sc = document.createElement('div'); sc.className="source-card";
-                                //         sc.innerHTML = `<small>引用: ${s.filename}</small>`;
-                                //         sourceContainer.appendChild(sc);
-                                //     });
-                                // } else 
-                                if (data.type === 'reasoning') {
-                                    fullReasoning += data.content;
-                                    reasoningDiv.innerHTML = `<span class="not-italic text-amber-500 font-bold mr-2">⚖️ THOUGHT:</span>${fullReasoning}`;
-                                } else if (data.type === 'chunk') {
+                                if (data.type === 'chunk') {
                                     fullContent += data.content;
                                     aiMsgDiv.innerHTML = marked.parse(fullContent);
                                 }
