@@ -1,0 +1,29 @@
+# === Justitia Project Ignore Rules ===
+
+# 1. 向量数据库 (核心过滤对象)
+Model/
+**/chroma_db/
+**/chroma_db_v2/
+
+# 2. 财务数据库与临时数据
+*.db
+*.sqlite
+*.csv
+*.xlsx
+
+# 3. 环境变量与敏感密钥 (保护 API Key)
+.env
+.venv/
+venv/
+ENV/
+
+# 4. 运行日志与缓存
+**/Log/*.jsonl
+**/__pycache__/
+*.log
+.pytest_cache/
+.DS_Store
+
+# 5. 编辑器配置
+.vscode/
+.idea/
